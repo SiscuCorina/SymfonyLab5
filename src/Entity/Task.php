@@ -1,53 +1,38 @@
 <?php
-
 namespace App\Entity;
 
-use App\Repository\TaskRepository;
-use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
-/**
- * @ORM\Entity(repositoryClass=TaskRepository::class)
- */
 class Task
 {
     /**
-     * @ORM\Id
-     * @ORM\GeneratedValue
-     * @ORM\Column(type="integer")
+     * @Assert\NotBlank
      */
-    private $id;
+    protected $task;
 
-    /**
-     * @ORM\Column(type="string", length=255)
+     /**
+     * @Assert\NotBlank
+     * @Assert\Type("\DateTime")
      */
-    private $task;
+    protected $dueDate;
 
-    /**
-     * @ORM\Column(type="text")
-     */
-    private $dueDate;
-
-
-    public function setTask(string $task): ?string
-    {
-        $this->task = $task;
-
-        return $this;
-    }
-    public function getTask(): ?string
+    public function getTask()
     {
         return $this->task;
     }
-    public function setDueDate(string $task): ?string
-    {
-        $this->dueDate = $dueDate;
 
-        return $this;
+    public function setTask($task)
+    {
+        $this->task = $task;
     }
-    public function getDueDate(): ?string
+
+    public function getDueDate()
     {
         return $this->dueDate;
     }
 
-
+    public function setDueDate(\DateTime $dueDate = null)
+    {
+        $this->dueDate = $dueDate;
+    }
 }

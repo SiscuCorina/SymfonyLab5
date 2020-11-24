@@ -1,58 +1,56 @@
 <?php
-
 namespace App\Controller;
 
 use App\Entity\Task;
-use App\Form\Type\TaskType;
-use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\HttpFoundation\Request;
+use App\Form\Type\TaskType;
 
 class TaskController extends AbstractController
 {
-    /**
-     * @return Response
-     *
-     * @Route("/", name="main")
+     /**
+     * @Route("/form", name="form")
      */
-    public function index(): Response
+    public function new(Request $request)
     {
-        return $this->render('number.html.twig', [
-            'number' => random_int(0, 100)
+        // creates a task object and initializes some data for this example
+        $task = new Task(); 
+
+        $dueDateIsRequired = true;
+
+        $form = $this->createForm(TaskType::class, $task, [
+            'require_due_date' => $dueDateIsRequired,
+            'action' => $this->generateUrl('form'),
+            'method' => 'GET',
         ]);
-    }
 
-    /**
-     * @return Response
-     *
-     * @Route("/form")
-     */
-    public function form(): Response
-    {
-        $task = new Task();
+        $form = $this->get('form.factory')->createNamed('My_form_name', TaskType::class, $task);
+    
+        $form->handleRequest($request);
 
-        $form = $this->createForm(TaskType::class, $task);
-
-        return $this->render('form.html.twig', [
+        if ($form->isSubmitted() && $form->isValid()) {
+            // $form->getData() holds the submitted values
+            // but, the original `$task` variable has also been updated
+            $task = $form->getData();
+    
+            // ... perform some action, such as saving the task to the database
+            // for example, if Task is a Doctrine entity, save it!
+            // $entityManager = $this->getDoctrine()->getManager();
+            // $entityManager->persist($task);
+            // $entityManager->flush();
+    
+            return $this->redirectToRoute('app_task_added');
+        }
+        return $this->render('task/form.html.twig', [
             'form' => $form->createView(),
         ]);
-
     }
 
     /**
-     * @param $name
-     *
-     * @return Response
-     *
-     * @Route("/names/{name}")
+     * @Route("/added")
      */
-    public function name($name, LoggerInterface $logger): Response
-    {
-        $logger->info('User name: ' . $name);
-
-        return $this->render('name.html.twig', [
-            'name' => $name,
-        ]);
+    public function added(){
+        return $this->render('task/added.html.twig');
     }
 }
